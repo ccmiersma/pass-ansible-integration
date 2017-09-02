@@ -1,0 +1,7 @@
+---
+
+- name: update pass
+  shell: pass git pull
+  delegate_to: localhost
+  run_once: true
+  

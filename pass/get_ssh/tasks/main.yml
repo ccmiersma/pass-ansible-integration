@@ -1,0 +1,31 @@
+---
+
+- name: update pass
+  shell: pass git pull
+  delegate_to: localhost
+  run_once: true
+  
+- name: create local temp directory
+  tempfile:
+    state: directory
+  delegate_to: localhost
+  run_once: true
+  register: temp_dir
+  
+- name: get keys
+  fetch: 
+    src: "/etc/ssh/{{ item }}"
+    dest: "{{ temp_dir.path }}"
+  with_items: "{{ host_ssh_keys }}"  
+  
+- name: store in pass
+  shell: pass insert -m inventory/hosts/{{inventory_hostname}}/ssh/{{ item }} < "{{ temp_dir.path }}/{{ inventory_hostname }}/etc/ssh/{{ item }}"
+  delegate_to: localhost
+  with_items: "{{ host_ssh_keys }}"  
+
+- name: remove temp directory
+  file:
+    path: "{{ temp_dir.path }}"
+    state: absent
+  delegate_to: localhost
+  run_once: true
