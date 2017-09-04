@@ -5,3 +5,32 @@
   delegate_to: localhost
   run_once: true
   
+- name: get ssh public keys
+  shell: pass show inventory/hosts/{{inventory_hostname}}/ssh/{{ item }}
+  delegate_to: localhost
+  with_items: "{{ host_ssh_public_keys }}"
+  register: host_ssh_public_key_contents
+  
+- name: get ssh private keys
+  shell: pass show inventory/hosts/{{inventory_hostname}}/ssh/{{ item }}
+  delegate_to: localhost
+  with_items: "{{ host_ssh_private_keys }}"
+  register: host_ssh_private_key_contents
+  
+- name: deploy host_ssh_public_keys
+  become: true
+  template:
+    src: ssh_key_file.j2
+    dest: "/etc/ssh/{{ item.item }}"
+    mode: 0644
+  with_items: "{{ host_ssh_public_key_contents.results }}"
+
+- name: deploy host_ssh_private_keys
+  become: true
+  template:
+    src: ssh_key_file.j2
+    dest: "/etc/ssh/{{ item.item }}"
+    owner: root
+    group: ssh_keys
+    mode: 0640
+  with_items: "{{ host_ssh_private_key_contents.results }}"

@@ -12,16 +12,28 @@
   run_once: true
   register: temp_dir
   
-- name: get keys
+- name: get public keys
   fetch: 
     src: "/etc/ssh/{{ item }}"
     dest: "{{ temp_dir.path }}"
-  with_items: "{{ host_ssh_keys }}"  
+  with_items: "{{ host_ssh_public_keys }}"  
   
-- name: store in pass
+- name: get private keys
+  become: true
+  fetch: 
+    src: "/etc/ssh/{{ item }}"
+    dest: "{{ temp_dir.path }}"
+  with_items: "{{ host_ssh_private_keys }}"  
+  
+- name: store public keys in pass
   shell: pass insert -m inventory/hosts/{{inventory_hostname}}/ssh/{{ item }} < "{{ temp_dir.path }}/{{ inventory_hostname }}/etc/ssh/{{ item }}"
   delegate_to: localhost
-  with_items: "{{ host_ssh_keys }}"  
+  with_items: "{{ host_ssh_public_keys }}"  
+  
+- name: store private keys in pass
+  shell: pass insert -m inventory/hosts/{{inventory_hostname}}/ssh/{{ item }} < "{{ temp_dir.path }}/{{ inventory_hostname }}/etc/ssh/{{ item }}"
+  delegate_to: localhost
+  with_items: "{{ host_ssh_private_keys }}"  
 
 - name: remove temp directory
   file:
