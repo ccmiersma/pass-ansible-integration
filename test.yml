@@ -2,4 +2,4 @@
 
 - hosts: all
   roles:
-    - { role: pass/get_ssh }
+    - { role: pass/new_passwd }

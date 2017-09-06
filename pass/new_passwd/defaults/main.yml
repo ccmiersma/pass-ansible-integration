@@ -1,0 +1,6 @@
+---
+
+pass_users:
+  - root
+  
+password_length: 15

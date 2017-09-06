@@ -1,0 +1,11 @@
+---
+
+- name: update pass
+  shell: pass git pull
+  delegate_to: localhost
+  run_once: true
+  
+- name: generate passwords
+  shell: "pass generate -n inventory/hosts/{{inventory_hostname}}/users/{{ item }} {{ password_length }}"
+  with_items: "{{ pass_users }}"
+  delegate_to: localhost
